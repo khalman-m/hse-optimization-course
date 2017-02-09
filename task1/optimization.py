@@ -14,7 +14,7 @@ class LineSearchTool(object):
         Must be be one of the following strings:
             - 'Wolfe' -- enforce strong Wolfe conditions;
             - 'Armijo" -- adaptive Armijo rule;
-            - "Constant" -- constant step size.
+            - 'Constant' -- constant step size.
     kwargs :
         Additional parameters of line_search method:
 
@@ -22,7 +22,7 @@ class LineSearchTool(object):
             c1, c2 : Constants for strong Wolfe conditions
             alpha_0 : Starting point for search
         If method == 'Armijo':
-            c : Constant for Armijo rule
+            c1 : Constant for Armijo rule
             alpha_0 : Starting point for search
         If method == 'Constant':
             c : The step size which is returned on every step.
@@ -88,7 +88,7 @@ def get_line_search_tool(line_search_options):
 def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
                      line_search_options=None, trace=False, display=False):
     """
-    Newton's optimization method.
+    Gradien descent optimization method.
 
     Parameters
     ----------
