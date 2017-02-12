@@ -116,7 +116,7 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
     x_star : np.array
         The point found by the optimization procedure
     message : string
-        "success" or the description of error,
+        "success" or the description of error
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
@@ -171,7 +171,7 @@ def newton(oracle, x_0, tolerance=1e-5, max_iter=100,
     x_star : np.array
         The point found by the optimization procedure
     message : string
-        "success" or the description of error,
+        'success' or the description of error
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:

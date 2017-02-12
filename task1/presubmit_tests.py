@@ -460,12 +460,17 @@ def test_gd_1d():
                     'time': TIME,
                     'x': X}
     # Armijo rule.
-    [x_star, msg, history] = optimization.gradient_descent(oracle, x0, 
-                                max_iter=5, tolerance=1e-10, trace=True,
-                                line_search_options={
-                                    'method': 'Armijo',
-                                    'alpha_0': 100, 
-                                    'c': 0.3 })
+    [x_star, msg, history] = optimization.gradient_descent(
+        oracle, x0,
+        max_iter=5,
+        tolerance=1e-10,
+        trace=True,
+        line_search_options={
+            'method': 'Armijo',
+            'alpha_0': 100,
+            'c1': 0.3
+        }
+)
     ok_(np.allclose(x_star, [-0.4077], atol=1e-3))
     eq_(msg, 'success')
     check_equal_histories(history, TRUE_HISTORY)
