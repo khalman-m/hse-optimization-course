@@ -504,12 +504,13 @@ def test_newton_1d():
                     'time': TIME,
                     'x': X}
     # Constant step size.
-    [x_star, msg, history] = optimization.newton(oracle, x0, 
-                                max_iter=5, tolerance=1e-10, trace=True,
-                                line_search_options={
-                                    'method': 'Constant',
-                                    'c': 1.0},
-                                linear_solver='Cholesky')
+    [x_star, msg, history] = optimization.newton(
+        oracle, x0,
+        max_iter=5, tolerance=1e-10, trace=True,
+        line_search_options={
+            'method': 'Constant',
+            'c': 1.0}
+    )
     ok_(np.allclose(x_star, [-0.4077777], atol=1e-4))
     eq_(msg, 'success')
     check_equal_histories(history, TRUE_HISTORY)

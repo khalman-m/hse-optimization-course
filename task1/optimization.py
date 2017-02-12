@@ -20,10 +20,11 @@ class LineSearchTool(object):
 
         If method == 'Wolfe':
             c1, c2 : Constants for strong Wolfe conditions
-            alpha_0 : Starting point for search
+            alpha_0 : Starting point for the backtracking procedure
+                to be used in Armijo method in case of failure of Wolfe method.
         If method == 'Armijo':
             c1 : Constant for Armijo rule
-            alpha_0 : Starting point for search
+            alpha_0 : Starting point for the backtracking procedure.
         If method == 'Constant':
             c : The step size which is returned on every step.
     """
@@ -78,7 +79,7 @@ class LineSearchTool(object):
         return None
 
 
-def get_line_search_tool(line_search_options):
+def get_line_search_tool(line_search_options=None):
     if line_search_options:
         return LineSearchTool.from_dict(line_search_options)
     else:
@@ -108,6 +109,7 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
         Otherwise None is returned instead of history.
     display : bool
         If True, debug information is displayed during optimization.
+        Printing format and is up to a student and is not checked in any way.
 
     Returns
     -------
@@ -118,10 +120,10 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
-            - history['time'] : list of floats, containing time passed from the start of the method
+            - history['time'] : list of floats, containing time in seconds passed from the start of the method
             - history['func'] : list of function values f(x_k) on every step of the algorithm
             - history['grad_norm'] : list of values Euclidian norms ||g(x_k)|| of the gradient on every step of the algorithm
-            - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.shape <= 2
+            - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.size <= 2
 
     Example:
     --------
@@ -148,7 +150,8 @@ def newton(oracle, x_0, tolerance=1e-5, max_iter=100,
     ----------
     oracle : BaseSmoothOracle-descendant object
         Oracle with .func(), .grad() and .hess() methods implemented for computing
-        function value, its gradient and Hessian respectively.
+        function value, its gradient and Hessian respectively. If the Hessian
+        returned by the oracle is not positive-definite method stops with message="newton_direction_error"
     x_0 : np.array
         Starting point for optimization algorithm
     tolerance : float
@@ -175,7 +178,7 @@ def newton(oracle, x_0, tolerance=1e-5, max_iter=100,
             - history['time'] : list of floats, containing time passed from the start of the method
             - history['func'] : list of function values f(x_k) on every step of the algorithm
             - history['grad_norm'] : list of values Euclidian norms ||g(x_k)|| of the gradient on every step of the algorithm
-            - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.shape <= 2
+            - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.size <= 2
 
     Example:
     --------
