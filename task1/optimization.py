@@ -116,7 +116,9 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
     x_star : np.array
         The point found by the optimization procedure
     message : string
-        "success" or the description of error
+        "success" or the description of error:
+            - 'iterations_exceeded': if after max_iter iterations of the method x_k still doesn't satisfy
+                the stopping criterion.
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
@@ -128,7 +130,7 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
     Example:
     --------
     >> oracle = QuadraticOracle(np.eye(5), np.arange(5))
-    >> x_opt, message, history = gradient_descent(oracle, np.zeros(5), line_search_options={'method': 'Armijo', 'c': 1e-4})
+    >> x_opt, message, history = gradient_descent(oracle, np.zeros(5), line_search_options={'method': 'Armijo', 'c1': 1e-4})
     >> print('Found optimal point: {}'.format(x_opt))
        Found optimal point: [ 0.  1.  2.  3.  4.]
     """
@@ -171,7 +173,10 @@ def newton(oracle, x_0, tolerance=1e-5, max_iter=100,
     x_star : np.array
         The point found by the optimization procedure
     message : string
-        'success' or the description of error
+        'success' or the description of error:
+            - 'iterations_exceeded': if after max_iter iterations of the method x_k still doesn't satisfy
+                the stopping criterion.
+            - 'newton_direction_error': in case of failure of solving linear system with Hessian matrix (e.g. non-invertible matrix)
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:

@@ -1,4 +1,3 @@
-
 import nose
 from nose.tools import assert_almost_equal, ok_, eq_
 from io import StringIO 
