@@ -81,7 +81,10 @@ class LineSearchTool(object):
 
 def get_line_search_tool(line_search_options=None):
     if line_search_options:
-        return LineSearchTool.from_dict(line_search_options)
+        if type(line_search_options) is LineSearchTool:
+            return line_search_options
+        else:
+            return LineSearchTool.from_dict(line_search_options)
     else:
         return LineSearchTool()
 
@@ -119,6 +122,7 @@ def gradient_descent(oracle, x_0, tolerance=1e-5, max_iter=10000,
         "success" or the description of error:
             - 'iterations_exceeded': if after max_iter iterations of the method x_k still doesn't satisfy
                 the stopping criterion.
+            - 'computational_error': in case of getting Infinity or None value during the computations.
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
@@ -176,7 +180,8 @@ def newton(oracle, x_0, tolerance=1e-5, max_iter=100,
         'success' or the description of error:
             - 'iterations_exceeded': if after max_iter iterations of the method x_k still doesn't satisfy
                 the stopping criterion.
-            - 'newton_direction_error': in case of failure of solving linear system with Hessian matrix (e.g. non-invertible matrix)
+            - 'newton_direction_error': in case of failure of solving linear system with Hessian matrix (e.g. non-invertible matrix).
+            - 'computational_error': in case of getting Infinity or None value during the computations.
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
