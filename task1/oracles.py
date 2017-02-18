@@ -73,8 +73,8 @@ class LogRegL2Oracle(BaseSmoothOracle):
     ----------
         matvec_Ax : function
             Computes matrix-vector product Ax, where x is a vector of size n.
-        matvec_ATy : function of y
-            Computes matrix-vector product A^Ty, where y is a vector of size m.
+        matvec_ATx : function of x
+            Computes matrix-vector product A^Tx, where x is a vector of size m.
         matmat_ATsA : function
             Computes matrix-matrix-matrix product A^T * Diag(s) * A,
     """
