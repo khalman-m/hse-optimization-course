@@ -43,6 +43,7 @@ def conjugate_gradients(matvec, b, x_0, tolerance=1e-4, max_iter=None, trace=Fal
     """
     history = defaultdict(list) if trace else None
     x_k = np.copy(x_0)
+    # TODO: Implement Conjugate Gradients method.
     return x_k, 'success', history
 
 
@@ -92,14 +93,13 @@ def lbfgs(oracle, x_0, tolerance=1e-4, max_iter=500, memory_size=10,
     line_search_tool = get_line_search_tool(line_search_options)
     x_k = np.copy(x_0)
 
-    # TODO: Implement L-BFGS method
+    # TODO: Implement L-BFGS method.
     # Use line_search_tool.line_search() for adaptive step size.
     return x_k, 'success', history
 
 
 def hessian_free_newton(oracle, x_0, tolerance=1e-4, max_iter=500, 
-                        line_search_options=None, linear_solver_options=None,
-                        display=False, trace=False):
+                        line_search_options=None, display=False, trace=False):
     """
     Hessian Free method for optimization.
 
@@ -116,9 +116,6 @@ def hessian_free_newton(oracle, x_0, tolerance=1e-4, max_iter=500,
         Maximum number of iterations.
     line_search_options : dict, LineSearchTool or None
         Dictionary with line search options. See LineSearchTool class for details.
-    linear_solver_options : dict or None
-        Dictionary with parameters for newton's system solver.
-        NOTE: Specify it by yourself if you need to setup inner CG method.
     display : bool
         If True, debug information is displayed during optimization.
         Printing format is up to a student and is not checked in any way.
@@ -145,6 +142,6 @@ def hessian_free_newton(oracle, x_0, tolerance=1e-4, max_iter=500,
     line_search_tool = get_line_search_tool(line_search_options)
     x_k = np.copy(x_0)
 
-    # TODO: Implement hessian-free Newton's method
+    # TODO: Implement hessian-free Newton's method.
     # Use line_search_tool.line_search() for adaptive step size.
     return x_k, 'success', history
