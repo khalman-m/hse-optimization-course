@@ -61,8 +61,8 @@ class TestCG(unittest.TestCase):
         x_sol, message, hist = conjugate_gradients(self.matvec, self.b, self.x0, trace=True)
 
         self.assertTrue(isinstance(hist['residual_norm'], list) or isinstance(hist['residual_norm'], np.ndarray))
-        self.assertEqual(len(hist['residual_norm']), len(hist['func']))
-        self.assertEqual(len(hist['time']), len(hist['func']))
+        self.assertEqual(len(hist['residual_norm']), len(hist['time']))
+        self.assertEqual(len(hist['residual_norm']), len(hist['x']))
 
 
 class TestLBFGS(unittest.TestCase):
