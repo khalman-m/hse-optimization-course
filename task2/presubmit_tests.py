@@ -1,5 +1,4 @@
 import sys
-from collections import deque
 from io import StringIO
 import unittest
 import numpy as np
@@ -8,6 +7,7 @@ from numpy.testing import assert_equal, assert_array_almost_equal
 
 from oracles import QuadraticOracle, create_log_reg_oracle, hess_vec_finite_diff
 from optimization import conjugate_gradients, lbfgs, lbfgs_compute_dir, hessian_free_newton
+from utils import LineSearchTool
 
 # Check if it's Python 3
 if not sys.version_info > (3, 0):
@@ -201,6 +201,35 @@ class TestHessVec(unittest.TestCase):
         hess_vec_test = hess_vec_finite_diff(func, x, v, eps=1e-5)
         hess_vec_real = np.array([12, -0.2])
         assert_array_almost_equal(hess_vec_real, hess_vec_test, decimal=3)
+
+
+class TestLineSearchBest(unittest.TestCase):
+    # Define a simple quadratic function for testing
+    A = np.array([[1, 0], [0, 2]])
+    b = np.array([1, 6])
+    x0 = np.array([0, 0])
+    # no need for `extra` for this simple function
+    oracle = QuadraticOracle(A, b)
+
+    def test_line_search(self):
+        ls_tool = LineSearchTool(method='Best')
+        x_k = np.array([2.0, 2.0])
+        d_k = np.array([-1.0, 1.0])
+        alpha_test = ls_tool.line_search(self.oracle, x_k, d_k)
+        alpha_real = 1.0
+        self.assertAlmostEqual(alpha_real, alpha_test)
+
+        x_k = np.array([2.0, 2.0])
+        d_k = np.array([-1.0, 0.0])
+        alpha_test = ls_tool.line_search(self.oracle, x_k, d_k)
+        alpha_real = 1.0
+        self.assertAlmostEqual(alpha_real, alpha_test)
+
+        x_k = np.array([10.0, 10.0])
+        d_k = np.array([-1.0, -1.0])
+        alpha_test = ls_tool.line_search(self.oracle, x_k, d_k)
+        alpha_real = 7.666666666666667
+        self.assertAlmostEqual(alpha_real, alpha_test)
 
 
 if __name__ == '__main__':
