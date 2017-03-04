@@ -6,7 +6,7 @@ from numpy.linalg import norm
 from numpy.testing import assert_equal, assert_array_almost_equal
 
 from oracles import QuadraticOracle, create_log_reg_oracle, hess_vec_finite_diff
-from optimization import conjugate_gradients, lbfgs, lbfgs_compute_dir, hessian_free_newton
+from optimization import conjugate_gradients, lbfgs, hessian_free_newton
 from utils import LineSearchTool
 
 # Check if it's Python 3
@@ -32,6 +32,18 @@ class TestCG(unittest.TestCase):
     b = np.array([1, 6])
     x0 = np.array([0, 0])
     matvec = (lambda self, x: self.A.dot(x))
+
+    def check_equal_histories(self, history1, history2, atol=1e-3):
+        if history1 is None or history2 is None:
+            self.assertEqual(history1, history2)
+            return
+        self.assertTrue('residual_norm' in history1 and 'residual_norm' in history2)
+        self.assertTrue(np.allclose(history1['residual_norm'], history2['residual_norm'], atol=atol))
+        self.assertTrue('time' in history1 and 'time' in history2)
+        self.assertTrue(len(history1['time']), len(history2['time']))
+        self.assertTrue('x' in history1, 'x' in history2)
+        if 'x' in history1:
+            self.assertTrue(np.allclose(history1['x'], history2['x'], atol=atol))
 
     def test_default(self):
         """Check if everything works correctly with default parameters."""
@@ -66,6 +78,23 @@ class TestCG(unittest.TestCase):
         self.assertEqual(len(hist['residual_norm']), len(hist['time']))
         self.assertEqual(len(hist['residual_norm']), len(hist['x']))
 
+        x_sol, message, hist = conjugate_gradients(self.matvec, self.b, self.x0, trace=False)
+        self.assertTrue(hist is None)
+
+
+    def test_histories(self):
+        x_sol, message, history = conjugate_gradients(self.matvec, self.b, self.x0, trace=True)
+        res_norm = [6.0827625302982193,
+               0.49995308468204547,
+               0.0]
+        time_steps = [0.0] * 3  # Dummy values
+        x_steps = [np.array([0, 0]),
+                   np.array([ 0.50684932,  3.04109589]),
+                   np.array([ 1.,  3.])
+                   ]
+        true_history = dict(residual_norm=res_norm, time=time_steps, x=x_steps)
+        self.check_equal_histories(history, true_history)
+
 
 class TestLBFGS(unittest.TestCase):
     # Define a simple quadratic function for testing
@@ -76,6 +105,20 @@ class TestLBFGS(unittest.TestCase):
     f_star = -9.5
     x0 = np.array([0, 0])
     # For this func |nabla f(x)| < tol ensures |f(x) - f(x^*)| < tol^2
+
+    def check_equal_histories(self, history1, history2, atol=1e-3):
+        if history1 is None or history2 is None:
+            self.assertEqual(history1, history2)
+            return
+        self.assertTrue('func' in history1 and 'func' in history2)
+        self.assertTrue(np.allclose(history1['func'], history2['func'], atol=atol))
+        self.assertTrue('grad_norm' in history1 and 'grad_norm' in history2)
+        self.assertTrue(np.allclose(history1['grad_norm'], history2['grad_norm'], atol=atol))
+        self.assertTrue('time' in history1 and 'time' in history2)
+        self.assertTrue(len(history1['time']), len(history2['time']))
+        self.assertTrue('x' in history1, 'x' in history2)
+        if 'x' in history1:
+            self.assertTrue(np.allclose(history1['x'], history2['x'], atol=atol))
 
     def test_default(self):
         """Check if everything works correctly with default parameters."""
@@ -117,6 +160,10 @@ class TestLBFGS(unittest.TestCase):
         self.assertEqual(len(hist['time']), len(hist['func']))
         self.assertEqual(len(hist['x']), len(hist['func']))
 
+        x_min, message, hist = lbfgs(self.oracle, self.x0, trace=False)
+        self.assertTrue(hist is None)
+
+
     def test_quality(self):
         x_min, message, _ = lbfgs(self.oracle, self.x0, tolerance=1e-10)
         f_min = self.oracle.func(x_min)
@@ -124,6 +171,24 @@ class TestLBFGS(unittest.TestCase):
         g_k_norm = norm(self.A.dot(x_min) - self.b, 2)
         self.assertLessEqual(abs(g_k_norm), 1e-3)
         self.assertLessEqual(abs(f_min - self.f_star), 1e-3)
+
+    def test_histories(self):
+        x0 = -np.array([1.3, 2.7])
+        x_min, message, history = lbfgs(self.oracle, x0, trace=True, memory_size=10, line_search_options={'method': 'Best'}, tolerance=1e-6)
+        func_steps = [25.635000000000005,
+                      -8.8519395950378961,
+                      -9.5]
+        grad_norm_steps = [11.629703349613008,
+                           1.1497712070693149,
+                           0]
+        time_steps = [0.0] * 3  # Dummy values
+        x_steps = [np.array([-1.3, -2.7]),
+                   np.array([-0.12706157,  3.11369481]),
+                   np.array([1.,  3.])]
+        true_history = dict(grad_norm=grad_norm_steps, time=time_steps, x=x_steps, func=func_steps)
+        self.check_equal_histories(history, true_history)
+        self.assertEqual(message, "success")
+        assert_array_almost_equal(x_min, np.array([1.0, 3.0]))
 
 
 class TestHFN(unittest.TestCase):
@@ -135,6 +200,20 @@ class TestHFN(unittest.TestCase):
     # no need for `extra` for this simple function
     oracle = QuadraticOracle(A, b)
     # For this func |nabla f(x)| < tol ensures |f(x) - f(x^*)| < tol^2
+
+    def check_equal_histories(self, history1, history2, atol=1e-3):
+        if history1 is None or history2 is None:
+            self.assertEqual(history1, history2)
+            return
+        self.assertTrue('func' in history1 and 'func' in history2)
+        self.assertTrue(np.allclose(history1['func'], history2['func'], atol=atol))
+        self.assertTrue('grad_norm' in history1 and 'grad_norm' in history2)
+        self.assertTrue(np.allclose(history1['grad_norm'], history2['grad_norm'], atol=atol))
+        self.assertTrue('time' in history1 and 'time' in history2)
+        self.assertTrue(len(history1['time']), len(history2['time']))
+        self.assertTrue('x' in history1, 'x' in history2)
+        if 'x' in history1:
+            self.assertTrue(np.allclose(history1['x'], history2['x'], atol=atol))
 
     def test_default(self):
         """Check if everything works correctly with default parameters."""
@@ -171,13 +250,30 @@ class TestHFN(unittest.TestCase):
         self.assertEqual(len(hist['time']), len(hist['func']))
         self.assertEqual(len(hist['x']), len(hist['func']))
 
+        x_min, message, hist = hessian_free_newton(self.oracle, self.x0, trace=False)
+        self.assertTrue(hist is None)
+
     def test_quality(self):
-        x_min, message, _ = lbfgs(self.oracle, self.x0, tolerance=1e-10)
+        x_min, message, _ = hessian_free_newton(self.oracle, self.x0, tolerance=1e-10)
         f_min = self.oracle.func(x_min)
 
         g_k_norm = norm(self.A.dot(x_min) - self.b, 2)
         self.assertLessEqual(abs(g_k_norm), 1e-3)
         self.assertLessEqual(abs(f_min - self.f_star), 1e-3)
+
+    def test_histories(self):
+        x0 = -np.array([1.3, 2.7])
+        x_min, message, history = hessian_free_newton(self.oracle, x0, trace=True, line_search_options={'method': 'Best'}, tolerance=1e-6)
+
+        func_steps = [25.635, -9.5]
+        grad_norm_steps = [11.629703349613008, 0.0]
+        time_steps = [0.0] * 2  # Dummy values
+        x_steps = [np.array([-1.3, -2.7]),
+                   np.array([1., 3.])]
+        true_history = dict(grad_norm=grad_norm_steps, time=time_steps, x=x_steps, func=func_steps)
+        self.check_equal_histories(history, true_history)
+        self.assertEqual(message, "success")
+        assert_array_almost_equal(x_min, np.array([1.0, 3.0]))
 
 
 class TestHessVec(unittest.TestCase):
