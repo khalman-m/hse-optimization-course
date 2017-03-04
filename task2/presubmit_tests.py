@@ -1,12 +1,13 @@
 import sys
+from collections import deque
 from io import StringIO
 import unittest
 import numpy as np
 from numpy.linalg import norm
-from numpy.testing import assert_equal, assert_array_equal
+from numpy.testing import assert_equal, assert_array_almost_equal
 
-from oracles import QuadraticOracle, create_log_reg_oracle
-from optimization import conjugate_gradients, lbfgs, hessian_free_newton
+from oracles import QuadraticOracle, create_log_reg_oracle, hess_vec_finite_diff
+from optimization import conjugate_gradients, lbfgs, lbfgs_compute_dir, hessian_free_newton
 
 # Check if it's Python 3
 if not sys.version_info > (3, 0):
@@ -38,7 +39,8 @@ class TestCG(unittest.TestCase):
             x_sol, message, _ = conjugate_gradients(self.matvec, self.b, self.x0)
 
         assert_equal(message, 'success')
-        self.assertLessEqual(norm(self.A.dot(x_sol) - self.b, np.inf), 1e-4)
+        g_k_norm = norm(self.A.dot(x_sol) - self.b, 2)
+        self.assertLessEqual(g_k_norm, 1e-4 * norm(self.b))
         self.assertEqual(len(output), 0, 'You should not print anything by default.')
 
     def test_tol(self):
@@ -79,11 +81,8 @@ class TestLBFGS(unittest.TestCase):
         """Check if everything works correctly with default parameters."""
         with Capturing() as output:
             x_min, message, _ = lbfgs(self.oracle, self.x0)
-        f_min = self.oracle.func(x_min)
 
         assert_equal(message, 'success')
-        self.assertLessEqual(norm(self.A.dot(x_min) - self.b, np.inf), 1e-4)
-        self.assertLessEqual(abs(f_min - self.f_star), 1e-8)
         self.assertEqual(len(output), 0, 'You should not print anything by default.')
 
     def test_tol(self):
@@ -116,6 +115,15 @@ class TestLBFGS(unittest.TestCase):
 
         self.assertEqual(len(hist['grad_norm']), len(hist['func']))
         self.assertEqual(len(hist['time']), len(hist['func']))
+        self.assertEqual(len(hist['x']), len(hist['func']))
+
+    def test_quality(self):
+        x_min, message, _ = lbfgs(self.oracle, self.x0, tolerance=1e-10)
+        f_min = self.oracle.func(x_min)
+
+        g_k_norm = norm(self.A.dot(x_min) - self.b, 2)
+        self.assertLessEqual(abs(g_k_norm), 1e-3)
+        self.assertLessEqual(abs(f_min - self.f_star), 1e-3)
 
 
 class TestHFN(unittest.TestCase):
@@ -132,11 +140,8 @@ class TestHFN(unittest.TestCase):
         """Check if everything works correctly with default parameters."""
         with Capturing() as output:
             x_min, message, _ = hessian_free_newton(self.oracle, self.x0)
-        f_min = self.oracle.func(x_min)
 
         assert_equal(message, 'success')
-        self.assertLessEqual(norm(self.A.dot(x_min) - self.b, np.inf), 1e-4)
-        self.assertLessEqual(abs(f_min - self.f_star), 1e-8)
         self.assertTrue(len(output) == 0, 'You should not print anything by default.')
 
     def test_tol(self):
@@ -164,6 +169,38 @@ class TestHFN(unittest.TestCase):
 
         self.assertEqual(len(hist['grad_norm']), len(hist['func']))
         self.assertEqual(len(hist['time']), len(hist['func']))
+        self.assertEqual(len(hist['x']), len(hist['func']))
+
+    def test_quality(self):
+        x_min, message, _ = lbfgs(self.oracle, self.x0, tolerance=1e-10)
+        f_min = self.oracle.func(x_min)
+
+        g_k_norm = norm(self.A.dot(x_min) - self.b, 2)
+        self.assertLessEqual(abs(g_k_norm), 1e-3)
+        self.assertLessEqual(abs(f_min - self.f_star), 1e-3)
+
+
+class TestHessVec(unittest.TestCase):
+    # Define a simple quadratic function for testing
+    A = np.array([[1, 0], [0, 2]])
+    b = np.array([1, 6])
+    x0 = np.array([0, 0])
+    # no need for `extra` for this simple function
+    oracle = QuadraticOracle(A, b)
+
+    def test_hess_vec(self):
+        # f(x, y) = x^3 + y^2
+        func = lambda x: x[0] ** 3 + x[1] ** 2
+        x = np.array([2.0, 3.0])
+        v = np.array([1.0, 0.1])
+        hess_vec_test = hess_vec_finite_diff(func, x, v, eps=1e-5)
+        hess_vec_real = np.array([12, 0.2])
+        assert_array_almost_equal(hess_vec_real, hess_vec_test, decimal=3)
+
+        v = np.array([1.0, -0.1])
+        hess_vec_test = hess_vec_finite_diff(func, x, v, eps=1e-5)
+        hess_vec_real = np.array([12, -0.2])
+        assert_array_almost_equal(hess_vec_real, hess_vec_test, decimal=3)
 
 
 if __name__ == '__main__':

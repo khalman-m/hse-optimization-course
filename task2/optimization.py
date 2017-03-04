@@ -1,6 +1,6 @@
 import numpy as np
 from collections import defaultdict, deque  # Use this for effective implementation of L-BFGS
-from .utils import get_line_search_tool
+from utils import get_line_search_tool
 
 
 def conjugate_gradients(matvec, b, x_0, tolerance=1e-4, max_iter=None, trace=False, display=False):
@@ -17,8 +17,11 @@ def conjugate_gradients(matvec, b, x_0, tolerance=1e-4, max_iter=None, trace=Fal
         Starting point of the algorithm
     tolerance : float
         Epsilon value for stopping criterion.
-    max_iter : int
-        Maximum number of iterations.
+        Stop optimization procedure and return x_k when:
+         ||Ax_k - b||_2 <= tolerance * ||b||_2
+    max_iter : int, or None
+        Maximum number of iterations. if max_iter=None, set max_iter to n, where n is
+        the dimension of the space
     trace : bool
         If True, the progress information is appended into history dictionary during training.
         Otherwise None is returned instead of history.
@@ -85,6 +88,7 @@ def lbfgs(oracle, x_0, tolerance=1e-4, max_iter=500, memory_size=10,
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
+            - history['func'] : list of function values f(x_k) on every step of the algorithm
             - history['time'] : list of floats, containing time in seconds passed from the start of the method
             - history['grad_norm'] : list of values Euclidian norms ||g(x_k)|| of the gradient on every step of the algorithm
             - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.size <= 2
@@ -134,6 +138,7 @@ def hessian_free_newton(oracle, x_0, tolerance=1e-4, max_iter=500,
     history : dictionary of lists or None
         Dictionary containing the progress information or None if trace=False.
         Dictionary has to be organized as follows:
+            - history['func'] : list of function values f(x_k) on every step of the algorithm
             - history['time'] : list of floats, containing time in seconds passed from the start of the method
             - history['grad_norm'] : list of values Euclidian norms ||g(x_k)|| of the gradient on every step of the algorithm
             - history['x'] : list of np.arrays, containing the trajectory of the algorithm. ONLY STORE IF x.size <= 2
