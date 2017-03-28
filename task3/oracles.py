@@ -54,19 +54,19 @@ class BaseCompositeOracle(object):
         """
         Computes the f(x) + h(x).
         """
-        return self.f.func(x) + self.h.func(x)
+        return self._f.func(x) + self._h.func(x)
 
     def grad(self, x):
         """
         Computes the gradient of f(x).
         """
-        return self.f.grad(x)
+        return self._f.grad(x)
 
     def prox(self, x, alpha):
         """
         Computes the proximal mapping.
         """
-        return self.h.prox(x, alpha)
+        return self._h.prox(x, alpha)
 
     def duality_gap(self, x):
         """
