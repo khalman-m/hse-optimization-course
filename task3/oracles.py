@@ -151,14 +151,3 @@ def create_lasso_nonsmooth_oracle(A, b, regcoef):
     matvec_ATx = lambda x: A.T.dot(x)
     return LassoNonsmoothOracle(matvec_Ax, matvec_ATx, b, regcoef)
 
-
-
-
-
-
-
-
-
-
-
-
