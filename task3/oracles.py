@@ -126,7 +126,7 @@ class LassoProxOracle(BaseCompositeOracle):
 class LassoNonsmoothOracle(BaseNonsmoothConvexOracle):
     """
     Oracle for nonsmooth convex function
-        0.5 * ||Ax - b||_2^2 + ||x||_1.
+        0.5 * ||Ax - b||_2^2 + regcoef * ||x||_1.
     """
     # TODO: implement.
 
