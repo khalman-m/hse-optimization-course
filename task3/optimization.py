@@ -88,7 +88,7 @@ def subgradient_method(oracle, x_0, tolerance=1e-2, max_iter=1000, alpha_0=1,
     oracle : BaseNonsmoothConvexOracle-descendant object
         Oracle with .func() and .subgrad() methods implemented for computing
         function value and its one (arbitrary) subgradient respectively.
-        If avaliable, .duality_gap() method is used for estimating f_k - f*.
+        If available, .duality_gap() method is used for estimating f_k - f*.
     x_0 : 1-dimensional np.array
         Starting point of the algorithm
     tolerance : float
@@ -134,7 +134,7 @@ def proximal_gradient_descent(oracle, x_0, L_0=1, tolerance=1e-5,
         Oracle with .func() and .grad() and .prox() methods implemented 
         for computing function value, its gradient and proximal mapping 
         respectively.
-        If avaliable, .duality_gap() method is used for estimating f_k - f*.
+        If available, .duality_gap() method is used for estimating f_k - f*.
     x_0 : 1-dimensional np.array
         Starting point of the algorithm
     L_0 : float
