@@ -49,7 +49,7 @@ def barrier_method_lasso(A, b, reg_coef, x_0, u_0, tolerance=1e-5,
     c1 : float
         Armijo's constant for line search in Newton's method.
     lasso_duality_gap : callable object or None.
-        If calable the signature is lasso_duality_gap(ATAx_b, Ax_b, b, regcoef)
+        If calable the signature is lasso_duality_gap(x, Ax_b, ATAx_b, b, regcoef)
         Returns duality gap value for esimating the progress of method.
     trace : bool
         If True, the progress information is appended into history dictionary 
