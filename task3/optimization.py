@@ -19,7 +19,7 @@ def barrier_method_lasso(A, b, reg_coef, x_0, u_0, tolerance=1e-5,
         phi_t(x, u) := t * f(x, u) - sum_i( log(u_i + x_i) + log(u_i - x_i) )
     and minimize it as unconstrained problem by Newton's method.
 
-    In the outer loop `t` is decreased and we have a sequence of approximations
+    In the outer loop `t` is increased and we have a sequence of approximations
         { phi_t(x, u) } and solutions { (x_t, u_t)^{*} } which converges in `t`
     to the solution of the original problem.
 
