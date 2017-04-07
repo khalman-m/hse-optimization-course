@@ -128,7 +128,6 @@ def test_lasso_nonsmooth_oracle():
     A = np.eye(2)
     b = np.array([1.0, 2.0])
     oracle = oracles.create_lasso_nonsmooth_oracle(A, b, regcoef=2.0)
-    EPS = 1e-10
 
     # Checks at point x = [1, 0]
     x = np.array([-3.0, 0.0])
@@ -138,7 +137,7 @@ def test_lasso_nonsmooth_oracle():
     g = oracle.subgrad(x)
     ok_(isinstance(g, np.ndarray))
     assert_almost_equal(g[0], -6.0)
-    ok_(-4 - EPS <= g[1] <= EPS)
+    assert_almost_equal(g[1], -2.0)
 
 
 def check_prototype_results(results, groundtruth):
@@ -164,8 +163,8 @@ def test_barrier_prototype():
     A = np.eye(2)
     b = np.array([1.0, 2.0])
     reg_coef = 2.0
-    x_0 = np.array([-3.0, 0.0])
-    u_0 = np.array([0.0, 1.0])
+    x_0 = np.array([0.0, 0.0])
+    u_0 = np.array([3.0, 1.0])
     ldg = oracles.lasso_duality_gap
 
     method(A, b, reg_coef, x_0, u_0, lasso_duality_gap=ldg)
@@ -174,8 +173,12 @@ def test_barrier_prototype():
                             [(x_0, u_0), 'success', None])
     check_prototype_results(method(A, b, reg_coef, x_0, u_0, 
                                    lasso_duality_gap=ldg, tolerance=1e10, 
-                                   display=True),
+                                   trace=True),
                             [(x_0, u_0), 'success', [0.0]])
+    check_prorotype_results(method(A, b, reg_coef, x_0, u_0,
+                                   lasso_duality_gap=ldg, max_iter=1,
+                                   trace=True),
+                            [None, 'iterations_exceeded', [0.0, 0.0]])
     method(A, b, reg_coef, x_0, u_0, lasso_duality_gap=ldg, 
            tolerance_inner=1e-8)
     method(A, b, reg_coef, x_0, u_0, lasso_duality_gap=ldg, max_iter=1)
