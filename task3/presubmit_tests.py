@@ -163,8 +163,8 @@ def test_barrier_prototype():
     A = np.eye(2)
     b = np.array([1.0, 2.0])
     reg_coef = 2.0
-    x_0 = np.array([0.0, 0.0])
-    u_0 = np.array([3.0, 1.0])
+    x_0 = np.array([10.0, 10.0])
+    u_0 = np.array([11.0, 11.0])
     ldg = oracles.lasso_duality_gap
 
     method(A, b, reg_coef, x_0, u_0, lasso_duality_gap=ldg)
