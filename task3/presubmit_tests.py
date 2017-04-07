@@ -175,7 +175,7 @@ def test_barrier_prototype():
                                    lasso_duality_gap=ldg, tolerance=1e10, 
                                    trace=True),
                             [(x_0, u_0), 'success', [0.0]])
-    check_prorotype_results(method(A, b, reg_coef, x_0, u_0,
+    check_prototype_results(method(A, b, reg_coef, x_0, u_0,
                                    lasso_duality_gap=ldg, max_iter=1,
                                    trace=True),
                             [None, 'iterations_exceeded', [0.0, 0.0]])
